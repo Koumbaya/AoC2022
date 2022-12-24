@@ -29,13 +29,13 @@ func part1(in string) int {
 
 func part2(in string) int {
 	for i := 0; i < len(in); i++ {
-		m := make(map[uint8]bool)
+		m := make(map[uint8]struct{})
 		for j := 0; j < 14; j++ {
 			_, exist := m[in[i+j]]
 			if exist {
 				break
 			}
-			m[in[i+j]] = true
+			m[in[i+j]] = struct{}{}
 		}
 		if len(m) == 14 {
 			return i + 14

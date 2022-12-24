@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"strings"
-	"time"
 
 	"aoc/util"
 )
@@ -14,10 +13,8 @@ import (
 var input string
 
 func Run() {
-	t := time.Now()
+	// TODO : fix A*
 	fmt.Println(part1(input))
-	fmt.Println(time.Since(t))
-	fmt.Println(part2(input))
 }
 
 func part1(in string) int {
@@ -135,9 +132,4 @@ func aStar(start, end pos, grid [][]uint8) []pos {
 		}
 	}
 	return []pos{}
-}
-
-func part2(in string) int {
-
-	return 0
 }

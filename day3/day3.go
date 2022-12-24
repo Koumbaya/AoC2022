@@ -34,29 +34,30 @@ func common(b1, b2 string) uint8 {
 	panic("no common element")
 }
 
+// priority we remove X from the ascii value to get the right priority.
 func priority(c uint8) int {
-	if c <= 90 {
+	if c <= 90 { // uppercase. A-Z = 27-52.
 		return int(c - 38)
 	}
-	return int(c - 96)
+	return int(c - 96) // lowercase. a-z = 1-26.
 }
 
 func part2(in string) int {
 	lines := strings.Split(in, "\n")
 	score := 0
 	for i := 0; i < len(lines); i += 3 {
-		h1 := make(map[uint8]bool, len(lines[i]))
-		h2 := make(map[uint8]bool, 0)
+		h1 := make(map[uint8]struct{}, len(lines[i]))
+		h2 := make(map[uint8]struct{}, 0)
 		for a := range lines[i] {
-			h1[lines[i][a]] = true
+			h1[lines[i][a]] = struct{}{}
 		}
 		for a := range lines[i+1] {
-			if h1[lines[i+1][a]] {
-				h2[lines[i+1][a]] = true
+			if _, ok := h1[lines[i+1][a]]; ok {
+				h2[lines[i+1][a]] = struct{}{}
 			}
 		}
 		for a := range lines[i+2] {
-			if h2[lines[i+2][a]] {
+			if _, ok := h2[lines[i+2][a]]; ok {
 				score += priority(lines[i+2][a])
 				break // only one element in common
 			}

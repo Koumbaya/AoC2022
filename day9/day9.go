@@ -28,43 +28,11 @@ type pos struct {
 	y int
 }
 
-func (p *pos) moveSeg(rx, ry int) {
-	dX := util.Abs(rx, p.x)
-	dY := util.Abs(ry, p.y)
-	if dX < 2 && dY < 2 {
-		return // adjacent
-	}
-	if p.x == rx {
-		if p.y < ry {
-			p.y++
-		} else {
-			p.y--
-		}
-	} else if p.y == ry {
-		if p.x < rx {
-			p.x++
-		} else {
-			p.x--
-		}
-	} else if p.y < ry && p.x < rx {
-		p.x++
-		p.y++
-	} else if p.y < ry && p.x > rx {
-		p.x--
-		p.y++
-	} else if p.y > ry && p.x < rx {
-		p.x++
-		p.y--
-	} else {
-		p.x--
-		p.y--
-	}
-}
-
 func part1(in string) int {
 	visited := make(map[pos]struct{})
 	visited[pos{x: 0, y: 0}] = struct{}{}
-	var hx, hy, tx, ty int
+
+	var hx, hy, tx, ty int // head and tail positions.
 	for _, line := range strings.Split(in, "\n") {
 		l := strings.Split(line, " ")
 		dir := l[0]
@@ -83,12 +51,12 @@ func part2(in string) int {
 	visited := make(map[pos]struct{})
 	visited[pos{x: 0, y: 0}] = struct{}{}
 	segments := make([]pos, 9)
-	var hx, hy int
+
+	var hx, hy int // head position
 	for _, line := range strings.Split(in, "\n") {
 		l := strings.Split(line, " ")
 		dir := l[0]
 		steps, _ := strconv.Atoi(l[1])
-		//fmt.Printf("== %s %d ==\n", dir, steps)
 		for i := 0; i < steps; i++ {
 			hx, hy = moveHead(hx, hy, dir)
 			segments[0].moveSeg(hx, hy)          // move the first segment in relation to head
@@ -179,4 +147,37 @@ func moveTail(hx, hy, tx, ty int) (int, int) {
 	}
 
 	return tx, ty
+}
+
+func (p *pos) moveSeg(rx, ry int) {
+	dX := util.Abs(rx, p.x)
+	dY := util.Abs(ry, p.y)
+	if dX < 2 && dY < 2 {
+		return // adjacent
+	}
+	if p.x == rx {
+		if p.y < ry {
+			p.y++
+		} else {
+			p.y--
+		}
+	} else if p.y == ry {
+		if p.x < rx {
+			p.x++
+		} else {
+			p.x--
+		}
+	} else if p.y < ry && p.x < rx {
+		p.x++
+		p.y++
+	} else if p.y < ry && p.x > rx {
+		p.x--
+		p.y++
+	} else if p.y > ry && p.x < rx {
+		p.x++
+		p.y--
+	} else {
+		p.x--
+		p.y--
+	}
 }

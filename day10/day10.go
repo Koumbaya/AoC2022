@@ -18,11 +18,10 @@ var testmin string
 
 func Run() {
 	fmt.Println(part1(input))
-	fmt.Println(part2(input))
 }
 
 func part1(in string) int {
-	x := 1 // register
+	reg := 1 // register starts at 1
 	inst := make([]int, 0)
 	strengths := 0
 	for _, line := range strings.Split(in, "\n") {
@@ -35,23 +34,24 @@ func part1(in string) int {
 			inst = append(inst, val)
 		}
 	}
+
 	for i, val := range inst {
 		cycle := i + 1
 
 		if special(cycle) {
-			strengths += cycle * x
+			strengths += cycle * reg
 		}
 		if (cycle-1)%40 == 0 {
 			fmt.Println()
 		}
-		litDark(x, cycle)
-		x += val
+		lightDark(reg, cycle) // part 2
+		reg += val
 	}
 
 	return strengths
 }
 
-func litDark(x, cycle int) {
+func lightDark(x, cycle int) {
 	cycle = cycle - 1
 	if (x == cycle%40) ||
 		(x+1 == cycle%40) ||
@@ -63,18 +63,10 @@ func litDark(x, cycle int) {
 }
 
 func special(i int) bool {
-	if i == 20 ||
-		i == 60 ||
-		i == 100 ||
-		i == 140 ||
-		i == 180 ||
-		i == 220 {
+	switch i {
+	case 20, 60, 100, 140, 180, 220:
 		return true
+	default:
+		return false
 	}
-	return false
-}
-
-func part2(in string) int {
-
-	return 0
 }

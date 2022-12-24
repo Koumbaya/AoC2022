@@ -16,7 +16,6 @@ var test string
 
 func Run() {
 	fmt.Println(part1(input, 20))
-	fmt.Println(part2(test, 10000))
 }
 
 type monkey struct {
@@ -113,37 +112,4 @@ func topTwo(m map[int]int) int {
 		}
 	}
 	return t0 * t1
-}
-
-func part2(in string, rounds int) int {
-	var monkeys []monkey
-	lines := strings.Split(in, "\n")
-	for i := 0; i < len(lines); i += 7 {
-		monkeys = append(monkeys, parseMonkey(lines[i:i+7]))
-	}
-	inspected := make(map[int]int, len(monkeys))
-
-	for i := 0; i < rounds; i++ {
-		for m := 0; m < len(monkeys); m++ {
-			// for each item carried pop it and treat it
-			length := len(monkeys[m].items)
-			for it := 0; it < length; it++ {
-				var item int
-				item, monkeys[m].items = monkeys[m].items[0], monkeys[m].items[1:]
-				// inspect
-				inspected[m]++
-				item = monkeys[m].operation(item)
-				item = item / 3
-				// give item to another monkey depending on test
-				if item%monkeys[m].test == 0 {
-					monkeys[monkeys[m].mkTrue].items = append(monkeys[monkeys[m].mkTrue].items, item)
-				} else {
-					monkeys[monkeys[m].mkFalse].items = append(monkeys[monkeys[m].mkFalse].items, item)
-				}
-			}
-		}
-	}
-
-	return topTwo(inspected)
-	return 0
 }

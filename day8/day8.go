@@ -29,12 +29,14 @@ func part1(in string) int {
 	for y := range xy {
 		xy[y] = make([]tree, len(grid))
 	}
+
+	var topTree int
 	nbVisible := 0
 	// populate grid with heights
 	for y, line := range grid {
-		topTree := -1
+		topTree = -1
 		for x := range line {
-			hgt := int(line[x] - '0')
+			hgt := int(line[x] - '0') // align ascii values to uint8(0) by removing '0' from it.
 			// calc X visibility
 			xy[y][x] = tree{
 				height:  hgt,
@@ -62,7 +64,7 @@ func part1(in string) int {
 	}
 	// calc Y visibility
 	for y := range xy {
-		topTree := -1
+		topTree = -1
 		for x := range xy[y] {
 			if xy[x][y].height > topTree {
 				if !xy[x][y].visible {
@@ -111,9 +113,9 @@ func printVisibility(forest *[][]tree) {
 func part2(in string) int {
 	grid := strings.Split(in, "\n")
 	// make grid
-	xy := make([][]tree, len(grid[0]))
+	xy := make([][]int, len(grid[0]))
 	for y := range xy {
-		xy[y] = make([]tree, len(grid))
+		xy[y] = make([]int, len(grid))
 	}
 
 	// populate grid with heights
@@ -121,16 +123,14 @@ func part2(in string) int {
 		for x := range line {
 			hgt := int(line[x] - '0')
 			// calc X visibility
-			xy[y][x] = tree{
-				height: hgt,
-			}
+			xy[y][x] = hgt
 		}
 	}
 	// calc scenic score
 	score := 0
 	for y, line := range grid {
 		for x := range line {
-			sc := calcScenic(x, y, xy[y][x].height, &xy)
+			sc := calcScenic(x, y, xy[y][x], &xy)
 			if sc > score {
 				score = sc
 			}
@@ -139,47 +139,38 @@ func part2(in string) int {
 	return score
 }
 
-func calcScenic(x, y, height int, forest *[][]tree) int {
+func calcScenic(x, y, height int, forest *[][]int) int {
 	var dir1, dir2, dir3, dir4 int
 	for i := x + 1; i < len((*forest)[x]); i++ {
-		if (*forest)[y][i].height < height {
-			dir1++
+		dir1++
+		if (*forest)[y][i] < height {
 			continue
-		} else {
-			dir1++
-			break
 		}
-
+		break
 	}
 
 	for i := x - 1; i >= 0; i-- {
-		if (*forest)[y][i].height < height {
-			dir2++
+		dir2++
+		if (*forest)[y][i] < height {
 			continue
-		} else {
-			dir2++
-			break
 		}
+		break
 	}
 
 	for i := y + 1; i < len((*forest)[y]); i++ {
-		if (*forest)[i][x].height < height {
-			dir3++
+		dir3++
+		if (*forest)[i][x] < height {
 			continue
-		} else {
-			dir3++
-			break
 		}
+		break
 	}
 
 	for i := y - 1; i >= 0; i-- {
-		if (*forest)[i][x].height < height {
-			dir4++
+		dir4++
+		if (*forest)[i][x] < height {
 			continue
-		} else {
-			dir4++
-			break
 		}
+		break
 	}
 
 	return dir1 * dir2 * dir3 * dir4

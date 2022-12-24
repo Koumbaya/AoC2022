@@ -8,11 +8,6 @@ import (
 	"strings"
 )
 
-const (
-	systemSize = 70000000
-	neededSize = 30000000
-)
-
 //go:embed input.txt
 var input string
 
@@ -32,9 +27,9 @@ type Node struct {
 	childNames map[string]*Node
 }
 
-func NewNode(name string, isDir bool, size int64, parent *Node) {
+func NewNode(name string, size int64, parent *Node) {
 	n := &Node{
-		isDir:      isDir,
+		isDir:      size == 0,
 		size:       size,
 		parent:     parent,
 		childNames: make(map[string]*Node),
@@ -49,7 +44,7 @@ func (n *Node) AddChild(ch *Node, name string) {
 	n.childNames[name] = ch
 }
 
-// AddSizeUpstream add the size to all parents folder recursively
+// AddSizeUpstream add the size to all parents folder recursively.
 func AddSizeUpstream(ch *Node, size int64) {
 	ch.size += size
 	if ch.parent == nil {
@@ -81,15 +76,15 @@ func part1(in string) int64 {
 			currDir = currDir.childNames[spl[2]]
 		case "dir":
 			// we discover a new subdirectory, add it to the current directory
-			NewNode(spl[1], true, 0, currDir)
+			NewNode(spl[1], 0, currDir)
 		default:
 			// must be a file
-			size, _ := strconv.Atoi(spl[0])
-			NewNode(spl[1], false, int64(size), currDir)
+			size, _ := strconv.ParseInt(spl[0], 10, 64)
+			NewNode(spl[1], size, currDir)
 		}
 	}
 	//Print(mainDir, "")
-	return CalcSize(mainDir)
+	return calcSize(mainDir)
 }
 
 func Print(n *Node, space string) {
@@ -101,26 +96,30 @@ func Print(n *Node, space string) {
 	}
 }
 
-func CalcSize(n *Node) int64 {
+func calcSize(n *Node) int64 {
 	sum := int64(0)
 	if n.size <= 100000 {
 		sum += n.size
 	}
 	for _, node := range n.childNames {
 		if node.isDir {
-			sum += CalcSize(node)
+			sum += calcSize(node)
 		}
 	}
 	return sum
 }
 
 func part2(in string) int64 {
+	const systemSize = 70000000
+	const neededSize = 30000000
+
 	mainDir := &Node{
 		isDir:      true,
 		parent:     nil, // should be the only parentless dir
 		childNames: make(map[string]*Node),
 	}
 	currDir := mainDir
+
 	lines := strings.Split(in, "\n")
 	for _, line := range lines[1:] { // skip first line
 		spl := strings.Split(line, " ")
@@ -137,25 +136,28 @@ func part2(in string) int64 {
 			currDir = currDir.childNames[spl[2]]
 		case "dir":
 			// we discover a new subdirectory, add it to the parent
-			NewNode(spl[1], true, 0, currDir)
+			NewNode(spl[1], 0, currDir)
 		default:
 			// must be a file
-			size, _ := strconv.Atoi(spl[0])
-			NewNode(spl[1], false, int64(size), currDir)
+			size, _ := strconv.ParseInt(spl[0], 10, 64)
+			NewNode(spl[1], size, currDir)
 		}
 	}
+
 	toFreeUp := neededSize - (systemSize - mainDir.size)
-	return FindSmallest(mainDir, toFreeUp)
+	return findSmallest(mainDir, toFreeUp)
 }
 
-func FindSmallest(n *Node, toFree int64) int64 {
+// findSmallest traverses the directories recursively to find the smallest dir
+// that if erased would free at least toFree.
+func findSmallest(n *Node, toFree int64) int64 {
 	min := int64(math.MaxInt64)
 	if n.size >= toFree {
 		min = n.size
 	}
 	for _, node := range n.childNames {
 		if node.isDir {
-			childSize := FindSmallest(node, toFree)
+			childSize := findSmallest(node, toFree)
 			if childSize < min {
 				min = childSize
 			}
